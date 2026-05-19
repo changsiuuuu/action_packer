@@ -32,7 +32,7 @@ jobs:
       - name: Packer init, build # 초기화와 빌드
         run: |
           packer init .
-          pakcer build .
+          packer build .
         working-directory: ./packer
 
       - name: Setup terraform # 테라폼 환경 구성
