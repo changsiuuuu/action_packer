@@ -1,0 +1,33 @@
+# .github/workflows/setup_infra.yml
+
+name: 'Setup infra'
+on:
+    push:
+        branches:
+            - master
+        paths:
+            -"terraform/**" # terraform/ 하위 경로에 변화가 있을 때 동자가게 한다 
+    workflow_dispatch: # 원할때 실행할 수 있는 버튼을 github actions에 만든다
+
+jobs:
+    terraform-run:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+            
+            # 인증정보를 환경변수에 넣을 수도 있지만 혹시 중간에 에러가 났을때 인증키가 로그에 노출될수있다
+            - name: AWS Configure # AWS 인증
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                   aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                   aws-region: ap-northeast-2
+            - name: Setup terraform # 테라폼 환경 구성
+              uses: hashicorp/setup-terraform@v4
+
+            - name: Terraform init, apply # 테라폼 자원을 init
+              run: |
+                   terraform init
+                   terraform apply --auto-approve
+              working-directory: ./terraform
